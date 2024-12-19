@@ -1,63 +1,58 @@
-body {
-    font-family: Arial, sans-serif;
-    background-image: url('cat2.jpg');
-    background-repeat: no-repeat;
-    background-size: cover;
-    margin: 0;
-    padding: 20px;
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const taskInput = document.getElementById('taskInput');
+    const addButton = document.getElementById('addButton');
+    const taskList = document.getElementById('taskList');
+    const taskCount = document.getElementById('taskCount');
 
-header {
-    text-align: center;
-}
+    let tasks = [];
 
-.input-section {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
+    const updateTaskCount = () => {
+        const totalTasks = tasks.length;
+        const remainingTasks = tasks.filter(task => !task.completed).length;
+        taskCount.textContent = `Total Tasks: ${totalTasks} | Remaining Tasks: ${remainingTasks}`;
+    };
 
-input[type="text"] {
-    padding: 10px;
-    width: 300px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
+    const renderTasks = () => {
+        taskList.innerHTML = '';
+        tasks.forEach((task, index) => {
+            const li = document.createElement('li');
+            li.textContent = task.text;
+            if (task.completed) {
+                li.classList.add('completed');
+            }
 
-button {
-    padding: 10px 15px;
-    margin-left: 10px;
-    border: none;
-    border-radius: 4px;
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-}
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = task.completed;
+            checkbox.addEventListener('change', () => {
+                task.completed = checkbox.checked;
+                renderTasks();
+                updateTaskCount();
+            });
 
-button:hover {
-    background-color: #218838;
-}
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => {
+                tasks.splice(index, 1);
+                renderTasks();
+                updateTaskCount();
+            });
 
-.task-list {
-    margin-bottom: 20px;
-}
+            li.appendChild(checkbox);
+            li.appendChild(deleteButton);
+            taskList.appendChild(li);
+        });
+        updateTaskCount();
+    };
 
-.task-list li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-
-.task-list li.completed {
-    text-decoration: line-through;
-    color: #888;
-}
-
-.task-counter {
-    text-align: center;
-}
+    addButton.addEventListener('click', () => {
+        const taskText = taskInput.value.trim();
+        if (taskText) {
+            tasks.push({ text: taskText, completed: false });
+            taskInput.value = '';
+            renderTasks();
+        } else {
+            alert('Please enter a task.');
+        }
+    });
+});
